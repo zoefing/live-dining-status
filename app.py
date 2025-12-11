@@ -1,4 +1,6 @@
 # import statements
+import os
+from datetime import datetime
 
 # import data from python file that scrapes smith dining website
 # import relevant flask elements
@@ -9,17 +11,25 @@ import scraper
 # create flask app
 app = Flask(__name__)
 
-# time of day
-from datetime import datetime
+# configure app for production
+app.secret_key = os.environ.get(
+    "SECRET_KEY", "fallback-secret-key-change-in-production"
+)
 
-now = datetime.now()
-current_time = now.strftime("%H:%M")
-
-# initialize session
-app.secret_key = "your_secret_key_here"
+# Configure for production
+if os.environ.get("FLASK_ENV") != "development":
+    app.config["DEBUG"] = False
 
 # get meal options from scraper
 meal_options = scraper.meal_options
+
+
+def get_current_time():
+    """Helper function to get current time"""
+    now = datetime.now()
+    current_time = now.strftime("%H:%M")
+    return now, current_time
+
 
 # setup app
 @app.route("/")
@@ -113,6 +123,7 @@ def dining(variable):
 
     # get meal time by time of day
     # set current time
+    now, current_time = get_current_time()
     meal_time = ""
     print(f"hour: {now.hour}")
 
@@ -174,4 +185,5 @@ def dining(variable):
 
 # run program
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
