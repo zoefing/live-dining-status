@@ -1,12 +1,12 @@
 # getting live data
-import requests
-from bs4 import BeautifulSoup
-
 # regex
 import re
 
+import requests
+from bs4 import BeautifulSoup
+
 # get live info from smith dining webpage
-url = "https://www.smith.edu/diningservices/menu_poc/cbord_menus.php/robots.txt" 
+url = "https://www.smith.edu/diningservices/menu_poc/cbord_menus.php/robots.txt"
 
 # initialize meal_options dictionary to store all dining hall data
 meal_options = {}
@@ -19,7 +19,7 @@ try:
     response.raise_for_status()
     # save cotent
     html_content = response.content
-    
+
 # throw exception if not working
 except requests.exceptions.RequestException as e:
     print(f"Error fetching the URL: {e}")
@@ -45,8 +45,10 @@ if div_elements:
         # print(f"contents: {contents}\n")
 
         # split contents by regex (two words next to eachother = new line)
-        regex_split = regex_split = re.split(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])', contents)
-        
+        regex_split = regex_split = re.split(
+            r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", contents
+        )
+
         # # debugging
         # print(f"regex split: {regex_split}\n")
 
@@ -83,7 +85,7 @@ if div_elements:
 
         # store data in structured format
         dining_hall_key = dining_hall.replace(" ", "_").replace("/", "_").lower()
-        
+
         # # debugging
         # print(dining_hall_key)
 
@@ -92,7 +94,7 @@ if div_elements:
         if dining_hall_key not in meal_options:
             # initialize
             meal_options[dining_hall_key] = {}
-        
+
         # if breakfast time
         if breakfast:
             # load breakfast options
@@ -117,6 +119,6 @@ if div_elements:
 # # debugging
 # else:
 #     # print(f"No div elements found with class '{target_class}'.")
-   
-# # debugging 
+
+# # debugging
 # print(f"\nfinal meal_options structure: {meal_options}")
