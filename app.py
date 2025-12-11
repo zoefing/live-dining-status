@@ -21,7 +21,6 @@ app.secret_key = "your_secret_key_here"
 # get meal options from scraper
 meal_options = scraper.meal_options
 
-
 # setup app
 @app.route("/")
 def index():
