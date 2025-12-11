@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+    <head>
+        <title>crowd sourced smith dining</title>
+        <style>
+            .menu-item {
+                border: 1px solid #ccc;
+                margin: 10px 0;
+                padding: 15px;
+                border-radius: 5px;
+            }
+            .vote-buttons {
+                margin: 10px 0;
+            }
+            .vote-buttons button {
+                margin-right: 10px;
+                padding: 5px 15px;
+                cursor: pointer;
+            }
+            .recent-votes {
+                margin-top: 10px;
+            }
+            .vote-entry {
+                background: #f5f5f5;
+                padding: 5px;
+                margin: 2px 0;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }
+            .vote-present {
+                border-left: 4px solid #28a745;
+            }
+            .vote-not-present {
+                border-left: 4px solid #dc3545;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>{{ dining_hall }} Menu</h1>
+
+        {% if menu_items %} {% for meal_type, items in menu_items.items() %}
+        <h3>{{ meal_type|title }}</h3>
+
+        {% for item in items %}
+        <div class="menu-item">
+            <strong>{{ item }}</strong>
+
+            <div class="vote-buttons">
+                <button class="presentBtn" data-item="{{ item }}" data-meal="{{ meal_type }}">present</button>
+                <button class="notPresentBtn" data-item="{{ item }}" data-meal="{{ meal_type }}">not present</button>
+            </div>
+
+            <div class="recent-votes">
+                <h4>Recent Votes:</h4>
+                <div class="votes-list" data-item="{{ item }}" data-meal="{{ meal_type }}">
+                    <p></p><em>No votes yet</em></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endfor %} {% else %}
+        <p>No menu items available for this dining hall.</p>
+        {% endif %}
+
+        <a href="{{ url_for('index') }}">Go back to home</a>
+
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+        <script>
+          const firebaseConfig = {
+            apiKey: "AIzaSyCLtqw1hlHbzysg7qNO5pl6uogyVmxiLbI",
+            authDomain: "site-5da85.firebaseapp.com",
+            projectId: "site-5da85",
+            storageBucket: "site-5da85.firebasestorage.app",
+            messagingSenderId: "1030997407506",
+            appId: "1:1030997407506:web:074732f2fe0ba3599b25cb",
+            measurementId: "G-NYG3GXXJY8"
+          };
+
+          firebase.initializeApp(firebaseConfig);
+          const database = firebase.database();
+
+          // function to create a unique key for each menu item
+          function getItemKey(diningHall, mealType, item) {
+            return `${diningHall}_${mealType}_${item}`.replace(/[.#$[\]]/g, '_');
+          }
+
+          // function to format timestamp
+          function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+          }
+
+          // function to update the display of recent votes for an item
+          function updateVotesDisplay(itemKey, votesListElement) {
+            const votesRef = database.ref(`item_votes/${itemKey}`);
+
+            votesRef.orderByChild('timestamp').limitToLast(3).on('value', (snapshot) => {
+              const votes = [];
+              snapshot.forEach((child) => {
+                votes.push(child.val());
+              });
+
+              // reverse to show most recent first
+              votes.reverse();
+
+              if (votes.length === 0) {
+                votesListElement.innerHTML = '<p><em>No votes yet</em></p>';
+              } else {
+                let html = '';
+                votes.forEach((vote) => {
+                  const voteClass = vote.vote === 'present' ? 'vote-present' : 'vote-not-present';
+                  html += `<div class="vote-entry ${voteClass}">
+                    <strong>${vote.vote}</strong> - ${formatTimestamp(vote.timestamp)}
+                  </div>`;
+                });
+                votesListElement.innerHTML = html;
+              }
+            });
+          }
+
+          // function to increment vote count
+          function addVote(itemKey, voteType) {
+            const votesRef = database.ref(`item_votes/${itemKey}`);
+            const newVoteRef = votesRef.push();
+
+            newVoteRef.set({
+              vote: voteType,
+              timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+          }
+
+          // initialize displays for all items
+          document.addEventListener('DOMContentLoaded', () => {
+            const diningHall = "{{ dining_hall }}";
+
+            // set up event listeners and displays for all vote lists
+            document.querySelectorAll('.votes-list').forEach((element) => {
+              const item = element.getAttribute('data-item');
+              const mealType = element.getAttribute('data-meal');
+              const itemKey = getItemKey(diningHall, mealType, item);
+
+              updateVotesDisplay(itemKey, element);
+            });
+
+            // set up present button listeners
+            document.querySelectorAll('.presentBtn').forEach((button) => {
+              button.addEventListener('click', () => {
+                const item = button.getAttribute('data-item');
+                const mealType = button.getAttribute('data-meal');
+                const itemKey = getItemKey(diningHall, mealType, item);
+
+                addVote(itemKey, 'present');
+              });
+            });
+
+            // set up not present button listeners
+            document.querySelectorAll('.notPresentBtn').forEach((button) => {
+              button.addEventListener('click', () => {
+                const item = button.getAttribute('data-item');
+                const mealType = button.getAttribute('data-meal');
+                const itemKey = getItemKey(diningHall, mealType, item);
+
+                addVote(itemKey, 'not present');
+              });
+            });
+          });
+        </script>
+
+    </body>
+</html>

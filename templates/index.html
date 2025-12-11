@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>crowd sourced smith dining</title>
+</head>
+<body>
+    <h1>check live smith dining status</h1>
+    <form action="{{ url_for('handle_selection') }}" method="POST">
+        <label for="dropdown_select">choose an option:</label>
+        <select name="dropdown_select" id="dropdown_select">
+            {% for option in options %}
+                <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Go</button>
+    </form>
+</body>
+</html>
