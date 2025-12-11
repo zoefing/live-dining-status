@@ -9,10 +9,14 @@ import scraper
 # create flask app
 app = Flask(__name__)
 
-# initialize session
-import os
+# time of day
+from datetime import datetime
 
-app.secret_key = os.environ.get("SECRET_KEY", "dev-key-change-in-production")
+now = datetime.now()
+current_time = now.strftime("%H:%M")
+
+# initialize session
+app.secret_key = "your_secret_key_here"
 
 # get meal options from scraper
 meal_options = scraper.meal_options
@@ -30,6 +34,7 @@ def index():
 
     # create dropdown using dining hall name keys
     options = list(meal_options.keys())
+    print(options)
 
     # render template (i.e., boot up main index.html page with the variables fed in)
     return render_template("index.html", options=options)
@@ -85,7 +90,7 @@ def handle_selection():
             session["menu_items"] = meal_options[menu]
 
             # redirect to the new page with the variable in the URL
-            return redirect(url_for("dining", variable=menu, stash=selected_option))
+            return redirect(url_for("dining", variable=menu))
 
         # error for if menu not found
         else:
@@ -105,18 +110,69 @@ def handle_selection():
 def dining(variable):
     # get menu items from session
     menu_items = session.get("menu_items", {})
+    print(f"menu items: {menu_items}")
+
+    # get meal time by time of day
+    # set current time
+    meal_time = ""
+    print(f"hour: {now.hour}")
+
+    # midnight to 4 AM
+    if 7 <= now.hour < 12:
+        meal_time = "breakfast"
+    # 5 AM to 7  AM
+    elif 12 <= now.hour < 17:
+        meal_time = "lunch"
+    # 7 AM to 12 PM
+    elif 17 <= now.hour < 20:
+        meal_time = "dinner"
+
+    # if (now.hour == 7 and now.minute >= 00) or (11 <= now.hour < 29):
+    #     meal_time = "breakfast"
+
+    # elif (now.hour == 11 and now.minute >= 30) or (12 <= now.hour < 13) or (now.hour == 4 and now.minute < 29):
+    #     meal_time = "lunch"
+
+    # elif (now.hour == 16 and now.minute >= 30) or (17 <= now.hour < 20):
+    #     meal_time = "dinner"
+
+    print(f"time: {meal_time}")
+
+    timed_menu_items = []
+    meal_available = True
+
+    if meal_time == "breakfast":
+        timed_menu_items = menu_items.get("breakfast", [])
+        if not timed_menu_items:
+            meal_available = False
+
+    elif meal_time == "lunch":
+        timed_menu_items = menu_items.get("lunch", [])
+        if not timed_menu_items:
+            meal_available = False
+
+    elif meal_time == "dinner":
+        timed_menu_items = menu_items.get("dinner", [])
+        if not timed_menu_items:
+            meal_available = False
+
     # get stashed dining hall name
     dining_hall_name = session.get("dining_hall_name")
+
+    # debugging
+    print(f"timed menu items: {timed_menu_items}")
+
     # render the new page template with the passed variable
     return render_template(
         "dining.html",
         variable=variable,
-        menu_items=menu_items,
+        items=timed_menu_items,
         dining_hall=dining_hall_name,
+        meal_type=meal_time,
+        meal_available=meal_available,
     )
 
 
 # run program
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(debug=True)
