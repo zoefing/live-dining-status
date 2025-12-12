@@ -118,15 +118,21 @@ def dining(variable):
     meal_time = ""
     print(f"hour: {now.hour}")
 
-    # midnight to 4 AM
+    # 7 AM to 12 PM - breakfast
     if 7 <= now.hour < 12:
         meal_time = "breakfast"
-    # 5 AM to 7  AM
+    # 12 PM to 5 PM - lunch
     elif 12 <= now.hour < 17:
         meal_time = "lunch"
-    # 7 AM to 12 PM
+    # 5 PM to 8 PM - dinner
     elif 17 <= now.hour < 20:
         meal_time = "dinner"
+    # outside meal hours - default to next meal
+    else:
+        if now.hour < 7:
+            meal_time = "breakfast"
+        else:
+            meal_time = "dinner"
 
     # if (now.hour == 7 and now.minute >= 00) or (11 <= now.hour < 29):
     #     meal_time = "breakfast"
