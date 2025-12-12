@@ -12,6 +12,7 @@ app = Flask(__name__)
 
 # time of day
 from datetime import datetime
+import pytz
 
 # initialize session
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
@@ -116,7 +117,7 @@ def dining(variable):
     # get meal time by time of day
     # set current time
     meal_time = ""
-    print(f"time: {now}")
+    print(f"hour: {now.hour}")
 
     # 7 AM to 12 PM - breakfast
     if 7 <= now.hour < 12:
