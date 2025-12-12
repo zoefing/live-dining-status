@@ -116,7 +116,7 @@ def dining(variable):
     # get meal time by time of day
     # set current time
     meal_time = ""
-    print(f"hour: {now.hour}")
+    print(f"time: {now}")
 
     # 7 AM to 12 PM - breakfast
     if 7 <= now.hour < 12:
