@@ -107,8 +107,9 @@ def handle_selection():
 # display data on
 @app.route("/dining/<variable>")
 def dining(variable):
-    # get current time for this request
-    now = datetime.now()
+    # get current time for this request in Eastern Time
+    eastern = pytz.timezone('America/New_York')
+    now = datetime.now(pytz.utc).astimezone(eastern)
     
     # get menu items from session
     menu_items = session.get("menu_items", {})
@@ -126,7 +127,7 @@ def dining(variable):
     elif 12 <= now.hour < 17:
         meal_time = "lunch"
     # 5 PM to 8 PM - dinner
-    elif 17 <= now.hour < 20:
+    elif 17 <= now.hour < 21:
         meal_time = "dinner"
     # outside meal hours - default to next meal
     else:
