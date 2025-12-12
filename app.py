@@ -13,14 +13,12 @@ app = Flask(__name__)
 # time of day
 from datetime import datetime
 
-now = datetime.now()
-current_time = now.strftime("%H:%M")
-
 # initialize session
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
 # get meal options from scraper
 meal_options = scraper.meal_options
+
 
 # setup app
 @app.route("/")
@@ -108,6 +106,9 @@ def handle_selection():
 # display data on
 @app.route("/dining/<variable>")
 def dining(variable):
+    # get current time for this request
+    now = datetime.now()
+    
     # get menu items from session
     menu_items = session.get("menu_items", {})
     print(f"menu items: {menu_items}")
@@ -171,6 +172,7 @@ def dining(variable):
         meal_type=meal_time,
         meal_available=meal_available,
     )
+
 
 # run program
 if __name__ == "__main__":
