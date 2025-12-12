@@ -5,6 +5,7 @@
 from flask import Flask, redirect, render_template, request, session, url_for
 
 import scraper
+import os
 
 # create flask app
 app = Flask(__name__)
@@ -16,12 +17,7 @@ now = datetime.now()
 current_time = now.strftime("%H:%M")
 
 # initialize session
-app.secret_key = "your_secret_key_here"
-
-# initialize session
-import os
-
-app.secret_key = os.environ.get("SECRET_KEY", "dev-key-change-in-production")
+app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
 # get meal options from scraper
 meal_options = scraper.meal_options
@@ -178,5 +174,4 @@ def dining(variable):
 
 # run program
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(debug=True)
