@@ -27,13 +27,16 @@ def index():
     # # debugging
     # print("available dining halls from scraper:")
 
-    # iterate through each key (dining hall)
-    for key in meal_options.keys():
-        print(f"  - {key}")
+    # # debugging
+    # # iterate through each key (dining hall)
+    # for key in meal_options.keys():
+    #     print(f"  - {key}")
 
     # create dropdown using dining hall name keys
     options = list(meal_options.keys())
-    print(options)
+    
+    # # debugging
+    # print(options)
 
     # render template (i.e., boot up main index.html page with the variables fed in)
     return render_template("index.html", options=options)
@@ -113,12 +116,16 @@ def dining(variable):
     
     # get menu items from session
     menu_items = session.get("menu_items", {})
-    print(f"menu items: {menu_items}")
+    
+    # # debugging
+    # print(f"menu items: {menu_items}")
 
     # get meal time by time of day
     # set current time
     meal_time = ""
-    print(f"hour: {now.hour}")
+    
+    # # debugging
+    # print(f"time: {now}")
 
     # 7 AM to 12 PM - breakfast
     if 7 <= now.hour < 12:
@@ -135,17 +142,9 @@ def dining(variable):
             meal_time = "breakfast"
         else:
             meal_time = "dinner"
-
-    # if (now.hour == 7 and now.minute >= 00) or (11 <= now.hour < 29):
-    #     meal_time = "breakfast"
-
-    # elif (now.hour == 11 and now.minute >= 30) or (12 <= now.hour < 13) or (now.hour == 4 and now.minute < 29):
-    #     meal_time = "lunch"
-
-    # elif (now.hour == 16 and now.minute >= 30) or (17 <= now.hour < 20):
-    #     meal_time = "dinner"
-
-    print(f"time: {meal_time}")
+            
+    # # debugging
+    # print(f"meal: {meal_time}")
 
     timed_menu_items = []
     meal_available = True
@@ -168,8 +167,8 @@ def dining(variable):
     # get stashed dining hall name
     dining_hall_name = session.get("dining_hall_name")
 
-    # debugging
-    print(f"timed menu items: {timed_menu_items}")
+    # # debugging
+    # print(f"timed menu items: {timed_menu_items}")
 
     # render the new page template with the passed variable
     return render_template(
